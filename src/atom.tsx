@@ -2,16 +2,14 @@ import { atom, selector } from "recoil";
 import { recoilPersist } from "recoil-persist";
 
 export enum MaxTime {
-	"ROUNDS" = 2,
-	"GOALS" = 2,
-	"TIME" = 60 * 0.1,
+	"ROUNDS" = 4,
+	"GOALS" = 12,
+	"TIME" = 60 * 25,
 }
 
 export interface IPomodoro {
-	time: number;
 	rounds: number;
 	goals: number;
-	isRunning: boolean;
 }
 
 export const timeState = atom({
@@ -42,10 +40,8 @@ const { persistAtom } = recoilPersist({
 export const pomodoroState = atom<IPomodoro>({
 	key: "pomodoro",
 	default: {
-		time: MaxTime.TIME,
 		rounds: 0,
 		goals: 0,
-		isRunning: false,
 	},
 	effects_UNSTABLE: [persistAtom],
 });

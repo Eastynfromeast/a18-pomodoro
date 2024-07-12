@@ -1,20 +1,27 @@
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { IPomodoro, MaxTime, goalState, pomodoroState, roundState, timeState } from "./atom";
+import { MaxTime, goalState, roundState, timeState, isRunningState } from "./atom";
 
 const Container = styled.div`
 	margin: 0 auto;
 	max-width: 480px;
+	height: 100vh;
+	font-size: 24px;
 	display: flex;
 	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-family: "Press Start 2P", system-ui;
 `;
 
 const Title = styled.h1`
-	font-size: 48px;
-	padding: 30px 0;
+	font-size: 1.8em;
+	padding-bottom: 45px;
 	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 4px;
 `;
 
 const Wrapper = styled(motion.div)`
@@ -29,7 +36,6 @@ const Timer = styled(motion.ul)`
 	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
-	font-size: 36px;
 	gap: 10px;
 `;
 
@@ -37,11 +43,14 @@ const TimerBox = styled(motion.li)`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: ${props => props.theme.textColor};
-	color: ${props => props.theme.bgColor};
-	padding: 50px 25px;
+	width: 150px;
+	height: 200px;
+	border-radius: 15px;
+	color: ${props => props.theme.textColor};
+	border: 1px solid;
 	font-weight: 600;
 	border-radius: 15px;
+	font-size: 2em;
 `;
 
 const Buttons = styled(motion.div)`
@@ -50,12 +59,27 @@ const Buttons = styled(motion.div)`
 	margin: 45px auto;
 `;
 
+const Button = styled(motion.button)`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100px;
+	height: 100px;
+	border-radius: 100%;
+	background-color: ${props => props.theme.textColor};
+	color: ${props => props.theme.bgColor};
+	svg {
+		width: 80%;
+		text-align: center;
+	}
+`;
+
 const Col = styled(motion.ul)`
 	width: 100%;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	justify-content: space-evenly;
+	justify-content: space-between;
 	align-items: center;
 	text-align: center;
 `;
@@ -63,8 +87,51 @@ const Col = styled(motion.ul)`
 const ColItem = styled(motion.li)`
 	display: inline-flex;
 	flex-direction: column;
+	gap: 10px;
 	max-width: 50%;
+	text-transform: uppercase;
+	font-weight: 600;
+	font-size: 1em;
+	p {
+		letter-spacing: -0.1em;
+	}
 `;
+
+const timerBoxVariants = {
+	initial: {
+		scale: 0.15,
+		opacity: 0.15,
+		boxShadow: "0 0 1px rgba(58, 227, 116, 1)",
+	},
+	animate: {
+		scale: 1,
+		opacity: 1,
+		boxShadow: "0 0 15px rgba(58, 227, 116, 1)",
+		transition: {
+			type: "spring",
+			duration: 1,
+		},
+	},
+};
+
+const buttonVariants = {
+	initial: {
+		scale: 0.5,
+	},
+	animate: {
+		scale: 1,
+		transition: {
+			type: "spring",
+			duration: 0.5,
+		},
+	},
+	active: {
+		scale: 1.2,
+		transition: {
+			duration: 0.2,
+		},
+	},
+};
 
 const set2digits = (n: number | string) => {
 	if ((n as number) < 10) n = n.toString().padStart(2, "0");
@@ -75,12 +142,9 @@ function App() {
 	const [time, setTime] = useRecoilState<number>(timeState);
 	const [round, setRound] = useRecoilState<number>(roundState);
 	const [goal, setGoal] = useRecoilState<number>(goalState);
-
-	const [pomodoro, setPomodoro] = useRecoilState(pomodoroState);
-	console.log(pomodoro);
+	const [isRunning, setIsRunning] = useRecoilState(isRunningState);
 
 	const timerRef = useRef<any>();
-	const [isRunning, setIsRunning] = useState(false);
 	const min = Math.floor(time / 60);
 	const sec = Math.floor(time % 60);
 
@@ -117,26 +181,46 @@ function App() {
 				}
 			}
 		}
-	}, [time, round, goal, isRunning]);
+	}, [time, round, goal, isRunning, setTime, setRound, setGoal, setIsRunning]);
 
 	return (
 		<Container>
 			<Title>Pomodoro</Title>
 			<Wrapper>
 				<Timer>
-					<TimerBox>
-						<span>{set2digits(min)}</span>
+					<TimerBox variants={timerBoxVariants} initial="initial" animate="animate" key={min}>
+						{set2digits(min)}
 					</TimerBox>
 					<li>
 						<span>:</span>
 					</li>
-					<TimerBox>
-						<span>{set2digits(sec)}</span>
+					<TimerBox variants={timerBoxVariants} initial="initial" animate="animate" key={sec}>
+						{set2digits(sec)}
 					</TimerBox>
 				</Timer>
 				<Buttons>
-					{!isRunning && <button onClick={onClickStart}>Start</button>}
-					{isRunning && <button onClick={onClickStop}>Stop</button>}
+					{!isRunning && (
+						<Button variants={buttonVariants} initial="initial" animate="animate" whileTap="active" whileHover="active" onClick={onClickStart}>
+							<svg fill="currentColor" viewBox="0 0 22 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+								/>
+							</svg>
+						</Button>
+					)}
+					{isRunning && (
+						<Button variants={buttonVariants} initial="initial" animate="animate" whileTap="active" whileHover="active" onClick={onClickStop}>
+							<svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+								<path
+									clipRule="evenodd"
+									fillRule="evenodd"
+									d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"
+								/>
+							</svg>
+						</Button>
+					)}
 				</Buttons>
 				<Col>
 					<ColItem>
@@ -148,6 +232,7 @@ function App() {
 						<span>Goal</span>
 					</ColItem>
 				</Col>
+				{goal === MaxTime.GOALS && <p> YAY! You complete today's goal! Congrats!</p>}
 			</Wrapper>
 		</Container>
 	);
