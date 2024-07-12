@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
+import { IPomodoro, MaxTime, goalState, pomodoroState, roundState, timeState } from "./atom";
 
 const Container = styled.div`
 	margin: 0 auto;
@@ -70,15 +72,12 @@ const set2digits = (n: number | string) => {
 };
 
 function App() {
-	const maximum = {
-		time: 60 * 0.1,
-		round: 2,
-		goal: 4,
-	};
+	const [time, setTime] = useRecoilState<number>(timeState);
+	const [round, setRound] = useRecoilState<number>(roundState);
+	const [goal, setGoal] = useRecoilState<number>(goalState);
 
-	const [time, setTime] = useState(maximum.time);
-	const [round, setRound] = useState(0);
-	const [goal, setGoal] = useState(0);
+	const [pomodoro, setPomodoro] = useRecoilState(pomodoroState);
+	console.log(pomodoro);
 
 	const timerRef = useRef<any>();
 	const [isRunning, setIsRunning] = useState(false);
@@ -86,33 +85,17 @@ function App() {
 	const sec = Math.floor(time % 60);
 
 	const onClickStart = () => {
-		setIsRunning(true);
-		timerRef.current = setInterval(() => {
-			setTime(prev => {
-				if (time === 0) {
-					setIsRunning(false);
-				}
-				return prev - 1;
-			});
-		}, 1000);
-	};
-
-	const updateGoal = () => {
-		setGoal(prev => {
-			console.log(prev);
-
-			return prev + 1;
-		});
-	};
-
-	const updateRound = () => {
-		setRound(prev => {
-			if (prev === maximum.round - 1) {
-				setGoal(prev => prev + 1);
-				return (prev = 0);
-			}
-			return prev + 1;
-		});
+		if (!isRunning) {
+			setIsRunning(true);
+			timerRef.current = setInterval(() => {
+				setTime(prev => {
+					if (time === 0) {
+						setIsRunning(false);
+					}
+					return prev - 1;
+				});
+			}, 1000);
+		}
 	};
 
 	const onClickStop = () => {
@@ -124,9 +107,9 @@ function App() {
 		if (isRunning) {
 			if (time === 0) {
 				clearInterval(timerRef.current);
-				setTime(maximum.time);
+				setTime(MaxTime.TIME);
 				setIsRunning(false);
-				if (round === maximum.round - 1) {
+				if (round === MaxTime.ROUNDS - 1) {
 					setRound(0);
 					setGoal(prev => prev + 1);
 				} else {
@@ -134,7 +117,7 @@ function App() {
 				}
 			}
 		}
-	}, [time, round, goal]);
+	}, [time, round, goal, isRunning]);
 
 	return (
 		<Container>
@@ -157,11 +140,11 @@ function App() {
 				</Buttons>
 				<Col>
 					<ColItem>
-						<p>{`${round} / ${maximum.round}`}</p>
+						<p>{`${round} / ${MaxTime.ROUNDS}`}</p>
 						<span>Round</span>
 					</ColItem>
 					<ColItem>
-						<p>{`${goal} / ${maximum.goal}`}</p>
+						<p>{`${goal} / ${MaxTime.GOALS}`}</p>
 						<span>Goal</span>
 					</ColItem>
 				</Col>
