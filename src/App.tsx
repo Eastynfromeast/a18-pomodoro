@@ -1,8 +1,10 @@
-import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
-import styled from "styled-components";
 import { MaxTime, goalState, roundState, timeState, isRunningState } from "./atom";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import { set2digits } from "./utils/utils";
+import Timer from "./components/Timer";
 
 const Container = styled.div`
 	margin: 0 auto;
@@ -17,7 +19,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-	font-size: 1.8em;
+	font-size: 1.5em;
 	padding-bottom: 45px;
 	text-align: center;
 	text-transform: uppercase;
@@ -28,29 +30,6 @@ const Wrapper = styled(motion.div)`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-`;
-
-const Timer = styled(motion.ul)`
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
-	gap: 10px;
-`;
-
-const TimerBox = styled(motion.li)`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 150px;
-	height: 200px;
-	border-radius: 15px;
-	color: ${props => props.theme.textColor};
-	border: 1px solid;
-	font-weight: 600;
-	border-radius: 15px;
-	font-size: 2em;
 `;
 
 const Buttons = styled(motion.div)`
@@ -74,7 +53,7 @@ const Button = styled(motion.button)`
 	}
 `;
 
-const Col = styled(motion.ul)`
+const Rounds = styled(motion.ul)`
 	width: 100%;
 	display: flex;
 	flex-direction: row;
@@ -84,17 +63,19 @@ const Col = styled(motion.ul)`
 	text-align: center;
 `;
 
-const ColItem = styled(motion.li)`
+const Round = styled(motion.li)`
 	display: inline-flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 15px;
 	max-width: 50%;
 	text-transform: uppercase;
 	font-weight: 600;
 	font-size: 1em;
-	p {
-		letter-spacing: -0.1em;
-	}
+`;
+
+const RoundGoal = styled(motion.p)`
+	color: rgba(255, 255, 255, 1);
+	letter-spacing: -0.3em;
 `;
 
 const timerBoxVariants = {
@@ -133,11 +114,6 @@ const buttonVariants = {
 	},
 };
 
-const set2digits = (n: number | string) => {
-	if ((n as number) < 10) n = n.toString().padStart(2, "0");
-	return n;
-};
-
 function App() {
 	const [time, setTime] = useRecoilState<number>(timeState);
 	const [round, setRound] = useRecoilState<number>(roundState);
@@ -145,8 +121,6 @@ function App() {
 	const [isRunning, setIsRunning] = useRecoilState(isRunningState);
 
 	const timerRef = useRef<any>();
-	const min = Math.floor(time / 60);
-	const sec = Math.floor(time % 60);
 
 	const onClickStart = () => {
 		if (!isRunning) {
@@ -187,17 +161,7 @@ function App() {
 		<Container>
 			<Title>Pomodoro</Title>
 			<Wrapper>
-				<Timer>
-					<TimerBox variants={timerBoxVariants} initial="initial" animate="animate" key={min}>
-						{set2digits(min)}
-					</TimerBox>
-					<li>
-						<span>:</span>
-					</li>
-					<TimerBox variants={timerBoxVariants} initial="initial" animate="animate" key={sec}>
-						{set2digits(sec)}
-					</TimerBox>
-				</Timer>
+				<Timer time={time} />
 				<Buttons>
 					{!isRunning && (
 						<Button variants={buttonVariants} initial="initial" animate="animate" whileTap="active" whileHover="active" onClick={onClickStart}>
@@ -222,16 +186,16 @@ function App() {
 						</Button>
 					)}
 				</Buttons>
-				<Col>
-					<ColItem>
-						<p>{`${round} / ${MaxTime.ROUNDS}`}</p>
+				<Rounds>
+					<Round>
+						<RoundGoal>{`${round} / ${MaxTime.ROUNDS}`}</RoundGoal>
 						<span>Round</span>
-					</ColItem>
-					<ColItem>
-						<p>{`${goal} / ${MaxTime.GOALS}`}</p>
+					</Round>
+					<Round>
+						<RoundGoal>{`${goal} / ${MaxTime.GOALS}`}</RoundGoal>
 						<span>Goal</span>
-					</ColItem>
-				</Col>
+					</Round>
+				</Rounds>
 				{goal === MaxTime.GOALS && <p> YAY! You complete today's goal! Congrats!</p>}
 			</Wrapper>
 		</Container>
