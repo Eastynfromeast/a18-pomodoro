@@ -17,16 +17,6 @@ export const timeState = atom({
 	default: MaxTime.TIME,
 });
 
-export const roundState = atom({
-	key: "round",
-	default: 0,
-});
-
-export const goalState = atom({
-	key: "goal",
-	default: 0,
-});
-
 export const isRunningState = atom({
 	key: "running",
 	default: false,

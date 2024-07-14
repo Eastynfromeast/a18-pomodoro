@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import { set2digits } from "../utils/utils";
+import { useRecoilValue } from "recoil";
+import { timeState } from "../utils/atom";
 
 interface ITime {
 	time: number;
@@ -54,7 +56,8 @@ const timerBoxVariants = {
 	},
 };
 
-function Timer({ time }: ITime) {
+function Timer() {
+	const time = useRecoilValue(timeState);
 	const min = Math.floor(time / 60);
 	const sec = Math.floor(time % 60);
 	return (

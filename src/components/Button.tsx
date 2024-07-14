@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { isRunningState } from "../atom";
+import { isRunningState } from "../utils/atom";
 
 interface IButtonProps {
 	onClick: () => void;
@@ -11,6 +11,7 @@ const Button = styled(motion.button)`
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	margin: 45px auto;
 	width: 100px;
 	height: 100px;
 	border-radius: 100%;
