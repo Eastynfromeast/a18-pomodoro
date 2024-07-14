@@ -2,6 +2,10 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 import { set2digits } from "../utils/utils";
 
+interface ITime {
+	time: number;
+}
+
 const TimerContainer = styled(motion.ul)`
 	display: flex;
 	flex-direction: row;
@@ -50,7 +54,7 @@ const timerBoxVariants = {
 	},
 };
 
-function Timer({ time }: { time: number }) {
+function Timer({ time }: ITime) {
 	const min = Math.floor(time / 60);
 	const sec = Math.floor(time % 60);
 	return (

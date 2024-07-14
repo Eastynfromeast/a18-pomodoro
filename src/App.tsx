@@ -3,8 +3,8 @@ import { useRecoilState } from "recoil";
 import { MaxTime, goalState, roundState, timeState, isRunningState } from "./atom";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { set2digits } from "./utils/utils";
 import Timer from "./components/Timer";
+import TimerButton from "./components/Button";
 
 const Container = styled.div`
 	margin: 0 auto;
@@ -78,42 +78,6 @@ const RoundGoal = styled(motion.p)`
 	letter-spacing: -0.3em;
 `;
 
-const timerBoxVariants = {
-	initial: {
-		scale: 0.15,
-		opacity: 0.15,
-		boxShadow: "0 0 1px rgba(58, 227, 116, 1)",
-	},
-	animate: {
-		scale: 1,
-		opacity: 1,
-		boxShadow: "0 0 15px rgba(58, 227, 116, 1)",
-		transition: {
-			type: "spring",
-			duration: 1,
-		},
-	},
-};
-
-const buttonVariants = {
-	initial: {
-		scale: 0.5,
-	},
-	animate: {
-		scale: 1,
-		transition: {
-			type: "spring",
-			duration: 0.5,
-		},
-	},
-	active: {
-		scale: 1.2,
-		transition: {
-			duration: 0.2,
-		},
-	},
-};
-
 function App() {
 	const [time, setTime] = useRecoilState<number>(timeState);
 	const [round, setRound] = useRecoilState<number>(roundState);
@@ -163,28 +127,7 @@ function App() {
 			<Wrapper>
 				<Timer time={time} />
 				<Buttons>
-					{!isRunning && (
-						<Button variants={buttonVariants} initial="initial" animate="animate" whileTap="active" whileHover="active" onClick={onClickStart}>
-							<svg fill="currentColor" viewBox="0 0 22 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
-								/>
-							</svg>
-						</Button>
-					)}
-					{isRunning && (
-						<Button variants={buttonVariants} initial="initial" animate="animate" whileTap="active" whileHover="active" onClick={onClickStop}>
-							<svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-								<path
-									clipRule="evenodd"
-									fillRule="evenodd"
-									d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"
-								/>
-							</svg>
-						</Button>
-					)}
+					<TimerButton onClick={isRunning ? onClickStop : onClickStart} />
 				</Buttons>
 				<Rounds>
 					<Round>
